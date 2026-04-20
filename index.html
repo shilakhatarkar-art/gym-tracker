@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#1D9E75">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Gym Tracker">
+<title>Gym Tracker 💪</title>
+<link rel="manifest" href="manifest.json">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --accent:#1D9E75;
+  --accent-bg:rgba(29,158,117,0.10);
+  --bg:#ffffff;
+  --bg2:#f7f7f5;
+  --bg3:#f0f0ec;
+  --text1:#1a1a1a;
+  --text2:#666;
+  --border:rgba(0,0,0,0.1);
+  --border2:rgba(0,0,0,0.18);
+  --radius:12px;
+  --radius-sm:8px;
+}
+@media(prefers-color-scheme:dark){:root{
+  --bg:#111;--bg2:#1c1c1c;--bg3:#242424;
+  --text1:#f0f0f0;--text2:#888;
+  --border:rgba(255,255,255,0.1);--border2:rgba(255,255,255,0.18);
+}}
+body{background:var(--bg);color:var(--text1);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh;}
+.app{max-width:430px;margin:0 auto;padding-bottom:40px;}
+.top{display:flex;justify-content:space-between;align-items:center;padding:16px 16px 10px;}
+.top-date{font-size:13px;color:var(--text2);}
+.streak{font-size:12px;font-weight:600;background:var(--bg2);border:0.5px solid var(--border);border-radius:20px;padding:4px 12px;color:var(--text1);}
+.workout-card{margin:0 16px 14px;border:0.5px solid var(--border);border-radius:var(--radius);padding:14px 16px;background:var(--bg2);display:flex;justify-content:space-between;align-items:center;}
+.wk-label{font-size:10px;color:var(--text2);margin-bottom:3px;letter-spacing:.06em;text-transform:uppercase;}
+.wk-name{font-size:17px;font-weight:600;color:var(--text1);}
+.wk-muscles{font-size:12px;color:var(--text2);margin-top:2px;}
+.day-nav{display:flex;gap:6px;}
+.nav-btn{background:var(--bg);border:0.5px solid var(--border2);border-radius:var(--radius-sm);width:32px;height:32px;cursor:pointer;font-size:16px;color:var(--text2);display:flex;align-items:center;justify-content:center;}
+.nav-btn:active{transform:scale(0.95);}
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:0 16px 14px;}
+.stat-card{background:var(--bg2);border-radius:var(--radius-sm);padding:10px 12px;text-align:center;}
+.stat-val{font-size:18px;font-weight:600;color:var(--text1);}
+.stat-lbl{font-size:10px;color:var(--text2);margin-top:2px;text-transform:uppercase;letter-spacing:.04em;}
+.prog-wrap{margin:0 16px 14px;}
+.prog-row{display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-bottom:5px;}
+.prog-bar{height:6px;background:var(--bg3);border-radius:3px;overflow:hidden;}
+.prog-fill{height:100%;background:var(--accent);border-radius:3px;transition:width .4s ease;}
+.sec-head{font-size:10px;font-weight:600;letter-spacing:.08em;color:var(--text2);padding:12px 16px 6px;display:flex;justify-content:space-between;text-transform:uppercase;}
+.meal-row{display:flex;align-items:center;gap:12px;padding:12px 16px;border-top:0.5px solid var(--border);cursor:pointer;transition:background .1s;-webkit-tap-highlight-color:transparent;user-select:none;}
+.meal-row:active{background:var(--bg2);}
+.meal-row.done .meal-title,.meal-row.done .meal-desc{opacity:.4;text-decoration:line-through;}
+.chk{width:24px;height:24px;border-radius:50%;border:1.5px solid var(--border2);flex-shrink:0;position:relative;transition:all .2s;}
+.chk.on{background:var(--accent);border-color:var(--accent);}
+.chk.on::after{content:'';position:absolute;left:7px;top:4px;width:5px;height:10px;border:2px solid #fff;border-top:none;border-left:none;transform:rotate(42deg);}
+.meal-title{font-size:14px;font-weight:600;color:var(--text1);}
+.meal-desc{font-size:12px;color:var(--text2);margin-top:2px;}
+.meal-meta{text-align:right;flex-shrink:0;}
+.meal-time{font-size:11px;color:var(--text2);}
+.meal-kcal{font-size:11px;color:var(--text2);margin-top:2px;}
+.divider{height:0.5px;background:var(--border);margin:10px 0;}
+.water-inner{padding:0 16px 16px;}
+.w-count{font-size:13px;color:var(--text2);margin-bottom:10px;}
+.w-big{font-size:20px;font-weight:700;color:var(--text1);}
+.cups-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;}
+.cup{cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;-webkit-tap-highlight-color:transparent;}
+.cup:active .cup-body{transform:scale(0.9);}
+.cup-body{width:36px;height:40px;border:1.5px solid var(--border2);border-radius:3px 3px 6px 6px;position:relative;overflow:hidden;transition:border-color .2s, transform .1s;}
+.cup-body.filled{border-color:var(--accent);background:var(--accent-bg);}
+.cup-lbl{font-size:10px;color:var(--text2);}
+.notif-btn{width:100%;padding:13px;border:0.5px solid var(--border2);border-radius:var(--radius);background:var(--bg);cursor:pointer;font-size:14px;color:var(--text1);display:flex;align-items:center;justify-content:center;gap:8px;transition:background .15s;font-family:inherit;}
+.notif-btn:active{background:var(--bg2);}
+.notif-btn.on{background:var(--accent-bg);border-color:var(--accent);color:var(--accent);}
+.notif-note{font-size:12px;color:var(--text2);text-align:center;margin-top:6px;padding:0 4px;}
+.pwa-box{margin:0 16px;padding:14px;background:var(--bg2);border-radius:var(--radius);border:0.5px solid var(--border);}
+.pwa-title{font-size:13px;font-weight:600;color:var(--text1);margin-bottom:6px;}
+.pwa-step{font-size:12px;color:var(--text2);line-height:2.0;}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="top">
+    <div class="top-date" id="d-date">Loading…</div>
+    <div class="streak" id="d-streak">🔥 0 day streak</div>
+  </div>
+
+  <div class="workout-card">
+    <div>
+      <div class="wk-label" id="wk-num">DAY 1 OF 7</div>
+      <div class="wk-name" id="wk-name">Push A</div>
+      <div class="wk-muscles" id="wk-muscles">Chest · Shoulders · Triceps</div>
+    </div>
+    <div class="day-nav">
+      <button class="nav-btn" onclick="shiftDay(-1)">‹</button>
+      <button class="nav-btn" onclick="shiftDay(1)">›</button>
+    </div>
+  </div>
+
+  <div class="prog-wrap">
+    <div class="prog-row"><span>Day progress</span><span id="prog-pct">0%</span></div>
+    <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat-card"><div class="stat-val" id="s-meals">0/5</div><div class="stat-lbl">Meals</div></div>
+    <div class="stat-card"><div class="stat-val" id="s-water">0/12</div><div class="stat-lbl">Cups</div></div>
+    <div class="stat-card"><div class="stat-val" id="s-kcal">1780</div><div class="stat-lbl">kcal left</div></div>
+  </div>
+
+  <div class="sec-head"><span>MEALS</span><span id="mc">0/5 done</span></div>
+  <div id="meals-list"></div>
+
+  <div class="divider"></div>
+
+  <div class="sec-head"><span>WATER</span><span id="wc">0 / 3000 ml</span></div>
+  <div class="water-inner">
+    <div class="w-count"><span class="w-big" id="w-big">0</span>&nbsp;of 12 cups today</div>
+    <div class="cups-grid" id="cups-grid"></div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="sec-head"><span>REMINDERS</span></div>
+  <div style="padding:0 16px 14px;">
+    <button class="notif-btn" id="notif-btn" onclick="handleNotif()">
+      <span id="notif-icon">🔔</span>
+      <span id="notif-label">Enable notifications</span>
+    </button>
+    <div class="notif-note" id="notif-note">Water alert every 60 min · Meal reminders at your meal times</div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="sec-head"><span>INSTALL OFFLINE</span></div>
+  <div class="pwa-box">
+    <div class="pwa-title">You're already running offline — this app works without internet!</div>
+    <div class="pwa-step">
+      📱 <strong>iPhone:</strong> Safari → Share → "Add to Home Screen" → Add<br>
+      🤖 <strong>Android:</strong> Chrome → 3-dot menu → "Add to Home Screen"<br>
+      💻 <strong>Desktop:</strong> Chrome address bar → ⊕ Install icon
+    </div>
+  </div>
+
+</div>
+
+<script>
+const MEALS=[
+  {t:'Morning',d:'Oats 100g + 2 eggs',time:'7:00 AM',kcal:420},
+  {t:'Lunch',d:'Oats 100g + 150g chicken',time:'12:30 PM',kcal:520},
+  {t:'Pre-workout',d:'1 banana + 2 eggs',time:'5:00 PM',kcal:230},
+  {t:'Post-workout',d:'200g chicken',time:'7:45 PM',kcal:220},
+  {t:'Dinner',d:'Oats 80g + 100g chicken + salad',time:'9:30 PM',kcal:390}
+];
+const TOTAL_KCAL=MEALS.reduce((a,m)=>a+m.kcal,0);
+const WKT=[
+  {n:'Push A',m:'Chest · Shoulders · Triceps'},
+  {n:'Pull A',m:'Back · Biceps · Rear delt'},
+  {n:'Legs + Abs A',m:'Quads · Hamstrings · Glutes · Abs'},
+  {n:'Push B',m:'Chest · Shoulders · Triceps (variation)'},
+  {n:'Pull B',m:'Back · Biceps · Rear delt (variation)'},
+  {n:'Legs + Abs B',m:'Quads · Hamstrings · Glutes · Abs'},
+  {n:'Rest Day',m:'Recovery · Walk 20 min · Sleep 8h'}
+];
+const MEAL_TIMES=[
+  {h:7,m:0,msg:'Morning meal: Oats 100g + 2 eggs 🍳'},
+  {h:12,m:30,msg:'Lunch time: Oats + chicken 🍗'},
+  {h:17,m:0,msg:'Pre-workout: Banana + 2 eggs 🍌'},
+  {h:19,m:45,msg:'Post-workout: 200g chicken 💪'},
+  {h:21,m:30,msg:'Dinner: Oats + chicken + salad 🥗'}
+];
+
+let S={date:'',meals:[0,0,0,0,0],water:0,cycleDay:1,streak:0,notif:false};
+let wTimer=null;
+
+function today(){return new Date().toISOString().slice(0,10);}
+function yesterday(){const d=new Date();d.setDate(d.getDate()-1);return d.toISOString().slice(0,10);}
+
+function loadState(){
+  try{const raw=localStorage.getItem('gym-tracker-pwa-v1');if(raw)S=JSON.parse(raw);}catch(e){}
+  const td=today();
+  if(S.date&&S.date!==td){
+    const wasYest=S.date===yesterday();
+    const allDone=S.meals.every(Boolean)&&S.water>=10;
+    if(wasYest&&allDone)S.streak++;else if(!wasYest)S.streak=0;
+    if(wasYest)S.cycleDay=(S.cycleDay%7)+1;
+    S.meals=[0,0,0,0,0];S.water=0;
+  }
+  S.date=td;
+  draw();
+  if(S.notif)startReminders();
+}
+
+function save(){
+  try{localStorage.setItem('gym-tracker-pwa-v1',JSON.stringify(S));}catch(e){}
+}
+
+function draw(){
+  const d=new Date();
+  document.getElementById('d-date').textContent=d.toLocaleDateString('en-IN',{weekday:'long',month:'short',day:'numeric'});
+  document.getElementById('d-streak').textContent='🔥 '+S.streak+' day streak';
+  const w=WKT[S.cycleDay-1];
+  document.getElementById('wk-num').textContent='DAY '+S.cycleDay+' OF 7';
+  document.getElementById('wk-name').textContent=w.n;
+  document.getElementById('wk-muscles').textContent=w.m;
+  const md=S.meals.filter(Boolean).length;
+  const ek=MEALS.filter((_,i)=>S.meals[i]).reduce((a,m)=>a+m.kcal,0);
+  document.getElementById('s-meals').textContent=md+'/5';
+  document.getElementById('s-water').textContent=S.water+'/12';
+  document.getElementById('s-kcal').textContent=(TOTAL_KCAL-ek);
+  document.getElementById('mc').textContent=md+'/5 done';
+  document.getElementById('wc').textContent=(S.water*250)+' / 3000 ml';
+  document.getElementById('w-big').textContent=S.water;
+  const list=document.getElementById('meals-list');
+  list.innerHTML='';
+  S.meals.forEach((done,i)=>{
+    const m=MEALS[i];
+    const row=document.createElement('div');
+    row.className='meal-row'+(done?' done':'');
+    row.onclick=()=>toggleMeal(i);
+    row.innerHTML=`<div class="chk${done?' on':''}"></div>
+    <div style="flex:1"><div class="meal-title">${m.t}</div><div class="meal-desc">${m.d}</div></div>
+    <div class="meal-meta"><div class="meal-time">${m.time}</div><div class="meal-kcal">${m.kcal} kcal</div></div>`;
+    list.appendChild(row);
+  });
+  const grid=document.getElementById('cups-grid');
+  grid.innerHTML='';
+  for(let i=0;i<12;i++){
+    const f=i<S.water;
+    const cup=document.createElement('div');
+    cup.className='cup';cup.onclick=()=>setWater(i);
+    cup.innerHTML=`<div class="cup-body${f?' filled':''}"></div><div class="cup-lbl">250ml</div>`;
+    grid.appendChild(cup);
+  }
+  const pct=Math.round((md/5)*50+(Math.min(S.water,12)/12)*50);
+  document.getElementById('prog-fill').style.width=pct+'%';
+  document.getElementById('prog-pct').textContent=pct+'%';
+  const btn=document.getElementById('notif-btn');
+  if(S.notif){
+    btn.className='notif-btn on';
+    document.getElementById('notif-icon').textContent='🔕';
+    document.getElementById('notif-label').textContent='Notifications ON — tap to disable';
+    document.getElementById('notif-note').textContent='Water reminder every 60 min · Meal alerts active';
+  }else{
+    btn.className='notif-btn';
+    document.getElementById('notif-icon').textContent='🔔';
+    document.getElementById('notif-label').textContent='Enable notifications';
+    document.getElementById('notif-note').textContent='Water alert every 60 min · Meal reminders at your meal times';
+  }
+}
+
+function toggleMeal(i){S.meals[i]=S.meals[i]?0:1;save();draw();}
+function setWater(i){S.water=(i<S.water)?i:(i+1);save();draw();}
+function shiftDay(d){S.cycleDay=((S.cycleDay-1+d+7)%7)+1;save();draw();}
+
+function notify(title,body,tag){
+  if(Notification.permission==='granted'){
+    new Notification(title,{body,tag:tag||'gt',icon:'',vibrate:[200,100,200]});
+  }
+}
+
+async function handleNotif(){
+  if(S.notif){S.notif=false;if(wTimer){clearInterval(wTimer);wTimer=null;}save();draw();return;}
+  if(!('Notification' in window)){
+    document.getElementById('notif-note').textContent='Notifications not supported in this browser.';return;
+  }
+  const p=await Notification.requestPermission();
+  if(p==='granted'){
+    S.notif=true;save();draw();startReminders();
+    notify('Gym Tracker 💪','Reminders ON! Stay on track today.','welcome');
+  }else{
+    document.getElementById('notif-note').textContent='Permission denied — allow in browser/phone settings';
+  }
+}
+
+function startReminders(){
+  if(wTimer)clearInterval(wTimer);
+  wTimer=setInterval(()=>{
+    if(!S.notif)return;
+    const msg=S.water<12?`💧 Drink water! ${S.water}/12 cups (${S.water*250}ml of 3000ml)`:`✅ Fully hydrated! Meals done: ${S.meals.filter(Boolean).length}/5`;
+    notify('Water Reminder',msg,'water');
+  },60*60*1000);
+  const now=new Date();
+  MEAL_TIMES.forEach(a=>{
+    const t=new Date();t.setHours(a.h,a.m,0,0);
+    const diff=t-now;
+    if(diff>0)setTimeout(()=>{if(S.notif)notify('Meal time! 🍽️',a.msg,'meal-'+a.h);},diff);
+  });
+}
+
+// Service worker registration
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('./sw.js').catch(()=>{});
+}
+
+loadState();
+</script>
+</body>
+</html>
